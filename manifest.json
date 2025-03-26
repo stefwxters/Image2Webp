@@ -1,7 +1,6 @@
 {
     "name": "Image to WebP Converter",
     "short_name": "WebP Converter",
-    "description": "Convert images to WebP format easily.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
