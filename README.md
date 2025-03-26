@@ -1,2 +1,2 @@
 # Image2Webp
-Image converter that converts to the website friendly Webp format 
+Image converter website that converts to the website friendly Webp format 
