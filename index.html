@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image to WebP Converter</title>
-    <meta name="google-site-verification" content="MmT-Ymvh1n5R9L-FsHVl0oAEWiHzSpapSaQ1t86_uMg" />
     <meta name="description" content="Easy and free Image converter to WebP">
+    <meta name="google-site-verification" content="MmT-Ymvh1n5R9L-FsHVl0oAEWiHzSpapSaQ1t86_uMg" />
 
     <!-- PWA Setup -->
     <link rel="manifest" href="manifest.json">
@@ -58,7 +58,7 @@
            oninput="document.getElementById('qualityValue').innerText = this.value + '%'">
     <span id="qualityValue">80%</span>
 
-    <button onclick="convertToWebP()">Convert</button>
+    <button id="convertButton">Convert</button>
     <button id="downloadAll" style="display: none;">Download All WebP (ZIP)</button>
 
     <canvas id="canvas" style="display: none;"></canvas>
@@ -73,14 +73,13 @@
     <script>
         let deferredPrompt;
 
-        // Listen for PWA install prompt
+        // PWA Install Button Logic
         window.addEventListener("beforeinstallprompt", (event) => {
             event.preventDefault();
             deferredPrompt = event;
             document.getElementById("installButton").style.display = "block";
         });
 
-        // Handle Install Button Click
         document.getElementById("installButton").addEventListener("click", () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -94,7 +93,6 @@
             }
         });
 
-        // Hide Install Button After Installation
         window.addEventListener("appinstalled", () => {
             console.log("PWA installed");
             document.getElementById("installButton").style.display = "none";
@@ -106,6 +104,69 @@
                 .then(() => console.log("Service Worker Registered!"))
                 .catch(error => console.log("Service Worker Registration Failed:", error));
         }
+
+        // Convert Images to WebP
+        function convertToWebP(files) {
+            const quality = document.getElementById("qualitySlider").value / 100;
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            const downloadLinks = document.getElementById("downloadLinks");
+
+            downloadLinks.innerHTML = ""; // Clear previous links
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.onload = function () {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+                        canvas.toBlob((blob) => {
+                            const url = URL.createObjectURL(blob);
+                            const link = document.createElement("a");
+                            link.href = url;
+                            link.download = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+                            link.innerText = "Download " + link.download;
+                            downloadLinks.appendChild(link);
+                            downloadLinks.appendChild(document.createElement("br"));
+                        }, "image/webp", quality);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Handle Convert Button Click
+        document.getElementById("convertButton").addEventListener("click", () => {
+            const inputFiles = document.getElementById("inputFile").files;
+            if (inputFiles.length > 0) {
+                convertToWebP(inputFiles);
+            } else {
+                alert("Please select images first.");
+            }
+        });
+
+        // Drag & Drop Support
+        const dropZone = document.getElementById("dropZone");
+        dropZone.addEventListener("dragover", (event) => {
+            event.preventDefault();
+            dropZone.style.backgroundColor = "#e0e0e0";
+        });
+
+        dropZone.addEventListener("dragleave", () => {
+            dropZone.style.backgroundColor = "#f9f9f9";
+        });
+
+        dropZone.addEventListener("drop", (event) => {
+            event.preventDefault();
+            dropZone.style.backgroundColor = "#f9f9f9";
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                convertToWebP(files);
+            }
+        });
     </script>
 
 </body>
