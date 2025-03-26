@@ -5,38 +5,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image to WebP Converter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #dropZone {
+            width: 100%;
+            height: 120px;
+            border: 2px dashed gray;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+            cursor: pointer;
+            background-color: #f9f9f9;
+        }
+        #previewContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .preview {
+            max-width: 100px;
+            max-height: 100px;
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+    </style>
 </head>
 <body>
     <h1>Convert Images to WebP</h1>
-    
+
     <input type="file" id="inputFile" accept="image/*" multiple>
-    <div id="dropZone" style="width: 100%; height: 100px; border: 2px dashed gray; text-align: center; padding: 20px;">
-        Drag & Drop Images Here
-    </div>
+    <div id="dropZone">Drag & Drop Images Here</div>
+
+    <p>Quality: <span id="qualityValue">80%</span></p>
+    <input type="range" id="qualitySlider" min="10" max="100" value="80" step="5" 
+           oninput="document.getElementById('qualityValue').innerText = this.value + '%'">
+
     <button onclick="convertToWebP()">Convert</button>
     <button id="downloadAll" style="display: none;">Download All WebP (ZIP)</button>
-    
+
     <canvas id="canvas" style="display: none;"></canvas>
+
+    <div id="previewContainer"></div>
     <div id="downloadLinks"></div>
 
     <script>
         document.getElementById('dropZone').addEventListener('dragover', (event) => {
             event.preventDefault();
-            event.target.style.backgroundColor = "#f0f0f0";
+            event.target.style.backgroundColor = "#e0e0e0";
         });
 
         document.getElementById('dropZone').addEventListener('dragleave', (event) => {
-            event.target.style.backgroundColor = "white";
+            event.target.style.backgroundColor = "#f9f9f9";
         });
 
         document.getElementById('dropZone').addEventListener('drop', (event) => {
             event.preventDefault();
-            event.target.style.backgroundColor = "white";
+            event.target.style.backgroundColor = "#f9f9f9";
             document.getElementById('inputFile').files = event.dataTransfer.files;
+            showPreviews();
         });
+
+        document.getElementById('inputFile').addEventListener('change', showPreviews);
+
+        function showPreviews() {
+            const input = document.getElementById('inputFile');
+            const previewContainer = document.getElementById('previewContainer');
+            previewContainer.innerHTML = "";
+
+            if (input.files.length === 0) return;
+
+            Array.from(input.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.classList.add("preview");
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
 
         function convertToWebP() {
             const input = document.getElementById('inputFile');
+            const quality = document.getElementById('qualitySlider').value / 100;
             if (input.files.length === 0) {
                 alert("Please select or drop images.");
                 return;
@@ -46,7 +104,7 @@
             const zip = new JSZip();
             let processedImages = 0;
 
-            Array.from(input.files).forEach((file, index) => {
+            Array.from(input.files).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const img = new Image();
@@ -80,7 +138,7 @@
                                     });
                                 };
                             }
-                        }, "image/webp", 0.8);
+                        }, "image/webp", quality);
                     };
                     img.src = event.target.result;
                 };
