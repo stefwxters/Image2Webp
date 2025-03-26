@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image to WebP Converter</title>
-    <meta name="description" content="Easy and free Image converter to Webp">
+
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6200ea">
-    <script async src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- CSS Styles -->
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            padding: 20px;
         }
         #dropZone {
             width: 100%;
@@ -42,14 +45,20 @@
 <body>
     <h1>Convert Images to WebP</h1>
 
+    <!-- File Input with Label -->
+    <label for="inputFile">Select Images:</label>
     <input type="file" id="inputFile" accept="image/*" multiple>
+
+    <!-- Drag & Drop Zone -->
     <div id="dropZone" role="button" aria-label="Drop images here">
-    Drag & Drop Images Here
+        Drag & Drop Images Here
     </div>
 
-    <p>Quality: <span id="qualityValue">80%</span></p>
+    <!-- Quality Slider with Label -->
+    <label for="qualitySlider">Quality:</label>
     <input type="range" id="qualitySlider" min="10" max="100" value="80" step="5" 
            oninput="document.getElementById('qualityValue').innerText = this.value + '%'">
+    <span id="qualityValue">80%</span>
 
     <button onclick="convertToWebP()">Convert</button>
     <button id="downloadAll" style="display: none;">Download All WebP (ZIP)</button>
@@ -59,6 +68,7 @@
     <div id="previewContainer"></div>
     <div id="downloadLinks"></div>
 
+    <!-- JavaScript -->
     <script>
         document.getElementById('dropZone').addEventListener('dragover', (event) => {
             event.preventDefault();
@@ -150,13 +160,13 @@
                 reader.readAsDataURL(file);
             });
         }
-    </script>
-    <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js").then(() => {
-    console.log("Service Worker Registered!");
-  });
-}
+
+        // Register the Service Worker for PWA
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/Image2Webp/service-worker.js")
+                .then(() => console.log("Service Worker Registered!"))
+                .catch(error => console.log("Service Worker Registration Failed:", error));
+        }
     </script>
 </body>
 </html>
