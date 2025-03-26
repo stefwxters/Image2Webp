@@ -64,33 +64,40 @@
     <div id="previewContainer"></div>
     <div id="downloadLinks"></div>
 
-    <!-- Install PWA Button -->
-    <button id="installButton">Install App</button>
-
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+        <!-- Install PWA Button -->
+<button id="installButton" style="display: none;">Install App</button>
 
-    <script>
-        let deferredPrompt;
+<script>
+    let deferredPrompt;
 
-        // Show Install Button if PWA is installable
-        window.addEventListener("beforeinstallprompt", (event) => {
-            event.preventDefault();
-            deferredPrompt = event;
-            document.getElementById("installButton").style.display = "block";
-        });
+    // Listen for PWA install prompt
+    window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault(); // Prevent automatic prompt
+        deferredPrompt = event;
+        document.getElementById("installButton").style.display = "block"; // Show button
+    });
 
-        document.getElementById("installButton").addEventListener("click", () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choice) => {
-                    if (choice.outcome === "accepted") {
-                        console.log("User installed PWA");
-                    }
-                    deferredPrompt = null;
-                    document.getElementById("installButton").style.display = "none";
-                });
-            }
-        });
+    // Handle Install Button Click
+    document.getElementById("installButton").addEventListener("click", () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt(); // Show install prompt
+            deferredPrompt.userChoice.then((choice) => {
+                if (choice.outcome === "accepted") {
+                    console.log("User installed the PWA");
+                }
+                deferredPrompt = null;
+                document.getElementById("installButton").style.display = "none"; // Hide button after installation
+            });
+        }
+    });
+<script>
+    // Hide the button if PWA is already installed
+    window.addEventListener("appinstalled", () => {
+        console.log("PWA installed");
+        document.getElementById("installButton").style.display = "none";
+    });
+</script>
 
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("/Image2Webp/service-worker.js")
