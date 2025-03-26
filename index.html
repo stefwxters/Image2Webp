@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image to WebP Converter</title>
     <meta name="google-site-verification" content="MmT-Ymvh1n5R9L-FsHVl0oAEWiHzSpapSaQ1t86_uMg" />
-        <meta name="description" content="Easy and free Image converter to Webp">
+    <meta name="description" content="Easy and free Image converter to WebP">
 
-    <!-- PWA Manifest -->
+    <!-- PWA Setup -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6200ea">
 
-    <!-- CSS Styles -->
+    <!-- Styles -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -43,6 +43,7 @@
     </style>
 </head>
 <body>
+
     <h1>Convert Images to WebP</h1>
 
     <label for="inputFile">Select Images:</label>
@@ -65,45 +66,47 @@
     <div id="downloadLinks"></div>
 
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-        <!-- Install PWA Button -->
-<button id="installButton" style="display: none;">Install App</button>
 
-<script>
-    let deferredPrompt;
+    <!-- Install PWA Button -->
+    <button id="installButton">Install App</button>
 
-    // Listen for PWA install prompt
-    window.addEventListener("beforeinstallprompt", (event) => {
-        event.preventDefault(); // Prevent automatic prompt
-        deferredPrompt = event;
-        document.getElementById("installButton").style.display = "block"; // Show button
-    });
+    <script>
+        let deferredPrompt;
 
-    // Handle Install Button Click
-    document.getElementById("installButton").addEventListener("click", () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt(); // Show install prompt
-            deferredPrompt.userChoice.then((choice) => {
-                if (choice.outcome === "accepted") {
-                    console.log("User installed the PWA");
-                }
-                deferredPrompt = null;
-                document.getElementById("installButton").style.display = "none"; // Hide button after installation
-            });
-        }
-    });
-<script>
-    // Hide the button if PWA is already installed
-    window.addEventListener("appinstalled", () => {
-        console.log("PWA installed");
-        document.getElementById("installButton").style.display = "none";
-    });
-</script>
+        // Listen for PWA install prompt
+        window.addEventListener("beforeinstallprompt", (event) => {
+            event.preventDefault();
+            deferredPrompt = event;
+            document.getElementById("installButton").style.display = "block";
+        });
 
+        // Handle Install Button Click
+        document.getElementById("installButton").addEventListener("click", () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choice) => {
+                    if (choice.outcome === "accepted") {
+                        console.log("User installed the PWA");
+                    }
+                    deferredPrompt = null;
+                    document.getElementById("installButton").style.display = "none";
+                });
+            }
+        });
+
+        // Hide Install Button After Installation
+        window.addEventListener("appinstalled", () => {
+            console.log("PWA installed");
+            document.getElementById("installButton").style.display = "none";
+        });
+
+        // Register Service Worker
         if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("/Image2Webp/service-worker.js")
+            navigator.serviceWorker.register("/service-worker.js")
                 .then(() => console.log("Service Worker Registered!"))
                 .catch(error => console.log("Service Worker Registration Failed:", error));
         }
     </script>
+
 </body>
 </html>
