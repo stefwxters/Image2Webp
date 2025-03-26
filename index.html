@@ -69,8 +69,11 @@
     <div id="previewContainer"></div>
     <div id="downloadLinks"></div>
 
-    <!-- JavaScript -->
+    <!-- JSZip Library for ZIP Downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <script>
+        // Handle Drag & Drop
         document.getElementById('dropZone').addEventListener('dragover', (event) => {
             event.preventDefault();
             event.target.style.backgroundColor = "#e0e0e0";
@@ -111,24 +114,26 @@
         function convertToWebP() {
             const input = document.getElementById('inputFile');
             const quality = document.getElementById('qualitySlider').value / 100;
+            const zip = new JSZip();
+            const downloadLinks = document.getElementById('downloadLinks');
+            downloadLinks.innerHTML = ""; // Clear previous results
+
             if (input.files.length === 0) {
                 alert("Please select or drop images.");
                 return;
             }
 
-            document.getElementById('downloadLinks').innerHTML = "";
-            const zip = new JSZip();
             let processedImages = 0;
-
-            Array.from(input.files).forEach(file => {
+            Array.from(input.files).forEach((file, index) => {
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.getElementById('canvas');
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
                         canvas.width = img.width;
                         canvas.height = img.height;
-                        const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0);
 
                         canvas.toBlob(blob => {
@@ -139,13 +144,13 @@
                             link.href = URL.createObjectURL(blob);
                             link.download = webpFileName;
                             link.innerText = `Download ${webpFileName}`;
-                            document.getElementById('downloadLinks').appendChild(link);
-                            document.getElementById('downloadLinks').appendChild(document.createElement('br'));
+                            downloadLinks.appendChild(link);
+                            downloadLinks.appendChild(document.createElement('br'));
 
                             processedImages++;
                             if (processedImages === input.files.length) {
                                 document.getElementById('downloadAll').style.display = "block";
-                                document.getElementById('downloadAll').onclick = function() {
+                                document.getElementById('downloadAll').onclick = function () {
                                     zip.generateAsync({ type: "blob" }).then(content => {
                                         const zipLink = document.createElement('a');
                                         zipLink.href = URL.createObjectURL(content);
@@ -169,6 +174,5 @@
                 .catch(error => console.log("Service Worker Registration Failed:", error));
         }
     </script>
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </body>
 </html>
