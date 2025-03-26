@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image to WebP Converter</title>
     <meta name="google-site-verification" content="MmT-Ymvh1n5R9L-FsHVl0oAEWiHzSpapSaQ1t86_uMg" />
-    <meta name="description" content="Easy and free Image converter to Webp">
+        <meta name="description" content="Easy and free Image converter to Webp">
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -29,34 +29,29 @@
             cursor: pointer;
             background-color: #f9f9f9;
         }
-        #previewContainer {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
+        #installButton {
+            display: none;
             margin-top: 20px;
-        }
-        .preview {
-            max-width: 100px;
-            max-height: 100px;
-            border: 1px solid #ddd;
-            padding: 5px;
+            padding: 10px 15px;
+            background: #6200ea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <h1>Convert Images to WebP</h1>
 
-    <!-- File Input with Label -->
     <label for="inputFile">Select Images:</label>
     <input type="file" id="inputFile" accept="image/*" multiple>
 
-    <!-- Drag & Drop Zone -->
     <div id="dropZone" role="button" aria-label="Drop images here">
         Drag & Drop Images Here
     </div>
 
-    <!-- Quality Slider with Label -->
     <label for="qualitySlider">Quality:</label>
     <input type="range" id="qualitySlider" min="10" max="100" value="80" step="5" 
            oninput="document.getElementById('qualityValue').innerText = this.value + '%'">
@@ -66,109 +61,37 @@
     <button id="downloadAll" style="display: none;">Download All WebP (ZIP)</button>
 
     <canvas id="canvas" style="display: none;"></canvas>
-
     <div id="previewContainer"></div>
     <div id="downloadLinks"></div>
 
-    <!-- JSZip Library for ZIP Downloads -->
+    <!-- Install PWA Button -->
+    <button id="installButton">Install App</button>
+
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <script>
-        // Handle Drag & Drop
-        document.getElementById('dropZone').addEventListener('dragover', (event) => {
+        let deferredPrompt;
+
+        // Show Install Button if PWA is installable
+        window.addEventListener("beforeinstallprompt", (event) => {
             event.preventDefault();
-            event.target.style.backgroundColor = "#e0e0e0";
+            deferredPrompt = event;
+            document.getElementById("installButton").style.display = "block";
         });
 
-        document.getElementById('dropZone').addEventListener('dragleave', (event) => {
-            event.target.style.backgroundColor = "#f9f9f9";
-        });
-
-        document.getElementById('dropZone').addEventListener('drop', (event) => {
-            event.preventDefault();
-            event.target.style.backgroundColor = "#f9f9f9";
-            document.getElementById('inputFile').files = event.dataTransfer.files;
-            showPreviews();
-        });
-
-        document.getElementById('inputFile').addEventListener('change', showPreviews);
-
-        function showPreviews() {
-            const input = document.getElementById('inputFile');
-            const previewContainer = document.getElementById('previewContainer');
-            previewContainer.innerHTML = "";
-
-            if (input.files.length === 0) return;
-
-            Array.from(input.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = document.createElement('img');
-                    img.src = event.target.result;
-                    img.classList.add("preview");
-                    previewContainer.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function convertToWebP() {
-            const input = document.getElementById('inputFile');
-            const quality = document.getElementById('qualitySlider').value / 100;
-            const zip = new JSZip();
-            const downloadLinks = document.getElementById('downloadLinks');
-            downloadLinks.innerHTML = ""; // Clear previous results
-
-            if (input.files.length === 0) {
-                alert("Please select or drop images.");
-                return;
+        document.getElementById("installButton").addEventListener("click", () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choice) => {
+                    if (choice.outcome === "accepted") {
+                        console.log("User installed PWA");
+                    }
+                    deferredPrompt = null;
+                    document.getElementById("installButton").style.display = "none";
+                });
             }
+        });
 
-            let processedImages = 0;
-            Array.from(input.files).forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    const img = new Image();
-                    img.onload = function () {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        ctx.drawImage(img, 0, 0);
-
-                        canvas.toBlob(blob => {
-                            const webpFileName = file.name.replace(/\.[^/.]+$/, ".webp");
-                            zip.file(webpFileName, blob);
-
-                            const link = document.createElement('a');
-                            link.href = URL.createObjectURL(blob);
-                            link.download = webpFileName;
-                            link.innerText = `Download ${webpFileName}`;
-                            downloadLinks.appendChild(link);
-                            downloadLinks.appendChild(document.createElement('br'));
-
-                            processedImages++;
-                            if (processedImages === input.files.length) {
-                                document.getElementById('downloadAll').style.display = "block";
-                                document.getElementById('downloadAll').onclick = function () {
-                                    zip.generateAsync({ type: "blob" }).then(content => {
-                                        const zipLink = document.createElement('a');
-                                        zipLink.href = URL.createObjectURL(content);
-                                        zipLink.download = "converted_images.zip";
-                                        zipLink.click();
-                                    });
-                                };
-                            }
-                        }, "image/webp", quality);
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // Register the Service Worker for PWA
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("/Image2Webp/service-worker.js")
                 .then(() => console.log("Service Worker Registered!"))
