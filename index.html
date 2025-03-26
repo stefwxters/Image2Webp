@@ -4,46 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image to WebP Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
     <h1>Convert Images to WebP</h1>
-    <input type="file" id="inputFile" accept="image/*">
+    
+    <input type="file" id="inputFile" accept="image/*" multiple>
+    <div id="dropZone" style="width: 100%; height: 100px; border: 2px dashed gray; text-align: center; padding: 20px;">
+        Drag & Drop Images Here
+    </div>
     <button onclick="convertToWebP()">Convert</button>
+    <button id="downloadAll" style="display: none;">Download All WebP (ZIP)</button>
+    
     <canvas id="canvas" style="display: none;"></canvas>
-    <a id="downloadLink" style="display: none;">Download WebP</a>
+    <div id="downloadLinks"></div>
 
     <script>
+        document.getElementById('dropZone').addEventListener('dragover', (event) => {
+            event.preventDefault();
+            event.target.style.backgroundColor = "#f0f0f0";
+        });
+
+        document.getElementById('dropZone').addEventListener('dragleave', (event) => {
+            event.target.style.backgroundColor = "white";
+        });
+
+        document.getElementById('dropZone').addEventListener('drop', (event) => {
+            event.preventDefault();
+            event.target.style.backgroundColor = "white";
+            document.getElementById('inputFile').files = event.dataTransfer.files;
+        });
+
         function convertToWebP() {
             const input = document.getElementById('inputFile');
             if (input.files.length === 0) {
-                alert("Please select an image.");
+                alert("Please select or drop images.");
                 return;
             }
-            
-            const file = input.files[0];
-            const reader = new FileReader();
 
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.getElementById('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
+            document.getElementById('downloadLinks').innerHTML = "";
+            const zip = new JSZip();
+            let processedImages = 0;
 
-                    canvas.toBlob(blob => {
-                        const link = document.getElementById('downloadLink');
-                        link.href = URL.createObjectURL(blob);
-                        link.download = "converted.webp";
-                        link.style.display = "block";
-                        link.innerText = "Download WebP";
-                    }, "image/webp", 0.8);
+            Array.from(input.files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.getElementById('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+
+                        canvas.toBlob(blob => {
+                            const webpFileName = file.name.replace(/\.[^/.]+$/, ".webp");
+                            zip.file(webpFileName, blob);
+
+                            const link = document.createElement('a');
+                            link.href = URL.createObjectURL(blob);
+                            link.download = webpFileName;
+                            link.innerText = `Download ${webpFileName}`;
+                            document.getElementById('downloadLinks').appendChild(link);
+                            document.getElementById('downloadLinks').appendChild(document.createElement('br'));
+
+                            processedImages++;
+                            if (processedImages === input.files.length) {
+                                document.getElementById('downloadAll').style.display = "block";
+                                document.getElementById('downloadAll').onclick = function() {
+                                    zip.generateAsync({ type: "blob" }).then(content => {
+                                        const zipLink = document.createElement('a');
+                                        zipLink.href = URL.createObjectURL(content);
+                                        zipLink.download = "converted_images.zip";
+                                        zipLink.click();
+                                    });
+                                };
+                            }
+                        }, "image/webp", 0.8);
+                    };
+                    img.src = event.target.result;
                 };
-                img.src = event.target.result;
-            };
-
-            reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
+            });
         }
     </script>
 </body>
