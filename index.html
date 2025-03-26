@@ -164,7 +164,150 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/browser-image-compression/2.0.2/browser-image-compression.js"></script>
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
-        // Image conversion and handling logic will be added here
+    document.addEventListener('DOMContentLoaded', () => {
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    const fileSelect = document.getElementById('file-select');
+    const preview = document.getElementById('preview');
+    const convertBtn = document.getElementById('convert-btn');
+    
+    // Supported image types
+    const supportedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/tiff'];
+    
+    // Conversion options
+    const webpOptions = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true
+    };
+
+    // State management
+    let selectedFiles = [];
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Highlight drop zone when item is dragged over
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, unhighlight, false);
+    });
+
+    // Handle dropped files
+    dropzone.addEventListener('drop', handleDrop, false);
+
+    // Handle file input selection
+    fileInput.addEventListener('change', handleFiles, false);
+    fileSelect.addEventListener('click', (e) => {
+        e.preventDefault();
+        fileInput.click();
+    });
+
+    // Convert button handler
+    convertBtn.addEventListener('click', convertToWebP);
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function highlight() {
+        dropzone.classList.add('dragover');
+    }
+
+    function unhighlight() {
+        dropzone.classList.remove('dragover');
+    }
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+
+    function handleFiles(e) {
+        // Support both event and FileList
+        const files = e.target ? e.target.files : e;
+        selectedFiles = [];
+        preview.innerHTML = '';
+
+        Array.from(files).forEach(file => {
+            if (supportedTypes.includes(file.type)) {
+                selectedFiles.push(file);
+                displayPreview(file);
+            }
+        });
+
+        updateConvertButton();
+    }
+
+    function displayPreview(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const previewItem = document.createElement('div');
+            previewItem.classList.add('preview-item');
+            
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.alt = file.name;
+
+            const fileName = document.createElement('p');
+            fileName.textContent = file.name;
+
+            previewItem.appendChild(img);
+            previewItem.appendChild(fileName);
+            preview.appendChild(previewItem);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function updateConvertButton() {
+        convertBtn.disabled = selectedFiles.length === 0;
+    }
+
+    async function convertToWebP() {
+        const conversions = selectedFiles.map(async (file) => {
+            try {
+                // Use browser-image-compression to convert
+                const compressedFile = await imageCompression(file, {
+                    ...webpOptions,
+                    fileType: 'webp'
+                });
+
+                // Create download link
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(compressedFile);
+                downloadLink.download = `${file.name.split('.')[0]}.webp`;
+                downloadLink.textContent = `Download ${file.name.split('.')[0]}.webp`;
+                downloadLink.classList.add('download-link');
+
+                // Replace preview image with download link
+                const previewItems = preview.getElementsByClassName('preview-item');
+                for (let item of previewItems) {
+                    if (item.querySelector('img').alt === file.name) {
+                        item.innerHTML = '';
+                        const convertedImg = document.createElement('img');
+                        convertedImg.src = URL.createObjectURL(compressedFile);
+                        convertedImg.alt = `Converted ${file.name}`;
+                        item.appendChild(convertedImg);
+                        item.appendChild(downloadLink);
+                        break;
+                    }
+                }
+            } catch (error) {
+                console.error('Conversion error:', error);
+            }
+        });
+
+        await Promise.all(conversions);
+    }
+});
     </script>
 
     <!-- PWA Service Worker Registration -->
