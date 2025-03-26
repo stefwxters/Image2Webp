@@ -3,171 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image to WebP Converter</title>
-    <meta name="description" content="Easy and free Image converter to WebP">
+    <title>WebP Converter</title>
+    <meta name="description" content="Simple online image to WebP converter">
     <meta name="google-site-verification" content="MmT-Ymvh1n5R9L-FsHVl0oAEWiHzSpapSaQ1t86_uMg" />
-
-    <!-- PWA Setup -->
+    
+    <!-- Favicon and PWA Assets -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#6200ea">
 
-    <!-- Styles -->
+    <!-- Critical CSS -->
     <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f4f4f4;
+            --text-color: #333;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        #dropZone {
-            width: 100%;
-            height: 120px;
-            border: 2px dashed gray;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
             display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 10px 0;
-            cursor: pointer;
-            background-color: #f9f9f9;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
         }
-        #installButton {
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        #file-input {
             display: none;
-            margin-top: 20px;
-            padding: 10px 15px;
-            background: #6200ea;
+        }
+        .file-upload {
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .file-upload:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        #preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .preview-item {
+            position: relative;
+            max-width: 200px;
+        }
+        .preview-item img {
+            max-width: 100%;
+            border-radius: 4px;
+        }
+        .download-btn {
+            background-color: var(--secondary-color);
             color: white;
             border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
-            border-radius: 5px;
+            margin-top: 1rem;
+        }
+        .download-btn:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
-
-    <h1>Convert Images to WebP</h1>
-
-    <label for="inputFile">Select Images:</label>
-    <input type="file" id="inputFile" accept="image/*" multiple>
-
-    <div id="dropZone" role="button" aria-label="Drop images here">
-        Drag & Drop Images Here
+    <div class="container">
+        <h1>WebP Converter</h1>
+        <div class="file-upload" id="file-drop-zone">
+            <input type="file" id="file-input" accept="image/*" multiple>
+            <p>Drag and drop images or click to upload</p>
+        </div>
+        <div id="preview-container"></div>
     </div>
 
-    <label for="qualitySlider">Quality:</label>
-    <input type="range" id="qualitySlider" min="10" max="100" value="80" step="5" 
-           oninput="document.getElementById('qualityValue').innerText = this.value + '%'">
-    <span id="qualityValue">80%</span>
-
-    <button id="convertButton">Convert</button>
-    <button id="downloadAll" style="display: none;">Download All WebP (ZIP)</button>
-
-    <canvas id="canvas" style="display: none;"></canvas>
-    <div id="previewContainer"></div>
-    <div id="downloadLinks"></div>
-
-    <script async src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-    <!-- Install PWA Button -->
-    <button id="installButton">Install App</button>
-
-    <script>
-        let deferredPrompt;
-
-        // PWA Install Button Logic
-        window.addEventListener("beforeinstallprompt", (event) => {
-            event.preventDefault();
-            deferredPrompt = event;
-            document.getElementById("installButton").style.display = "block";
-        });
-
-        document.getElementById("installButton").addEventListener("click", () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choice) => {
-                    if (choice.outcome === "accepted") {
-                        console.log("User installed the PWA");
-                    }
-                    deferredPrompt = null;
-                    document.getElementById("installButton").style.display = "none";
-                });
-            }
-        });
-
-        window.addEventListener("appinstalled", () => {
-            console.log("PWA installed");
-            document.getElementById("installButton").style.display = "none";
-        });
-
-        // Register Service Worker
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("/service-worker.js")
-                .then(() => console.log("Service Worker Registered!"))
-                .catch(error => console.log("Service Worker Registration Failed:", error));
-        }
-
-        // Convert Images to WebP
-        function convertToWebP(files) {
-            const quality = document.getElementById("qualitySlider").value / 100;
-            const canvas = document.getElementById("canvas");
-            const ctx = canvas.getContext("2d");
-            const downloadLinks = document.getElementById("downloadLinks");
-
-            downloadLinks.innerHTML = ""; // Clear previous links
-
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    const img = new Image();
-                    img.onload = function () {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        ctx.drawImage(img, 0, 0);
-                        canvas.toBlob((blob) => {
-                            const url = URL.createObjectURL(blob);
-                            const link = document.createElement("a");
-                            link.href = url;
-                            link.download = file.name.replace(/\.[^/.]+$/, "") + ".webp";
-                            link.innerText = "Download " + link.download;
-                            downloadLinks.appendChild(link);
-                            downloadLinks.appendChild(document.createElement("br"));
-                        }, "image/webp", quality);
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // Handle Convert Button Click
-        document.getElementById("convertButton").addEventListener("click", () => {
-            const inputFiles = document.getElementById("inputFile").files;
-            if (inputFiles.length > 0) {
-                convertToWebP(inputFiles);
-            } else {
-                alert("Please select images first.");
-            }
-        });
-
-        // Drag & Drop Support
-        const dropZone = document.getElementById("dropZone");
-        dropZone.addEventListener("dragover", (event) => {
-            event.preventDefault();
-            dropZone.style.backgroundColor = "#e0e0e0";
-        });
-
-        dropZone.addEventListener("dragleave", () => {
-            dropZone.style.backgroundColor = "#f9f9f9";
-        });
-
-        dropZone.addEventListener("drop", (event) => {
-            event.preventDefault();
-            dropZone.style.backgroundColor = "#f9f9f9";
-            const files = event.dataTransfer.files;
-            if (files.length > 0) {
-                convertToWebP(files);
-            }
-        });
-    </script>
-
+    <script src="/app.js" type="module"></script>
 </body>
 </html>
