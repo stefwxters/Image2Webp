@@ -43,7 +43,9 @@
     <h1>Convert Images to WebP</h1>
 
     <input type="file" id="inputFile" accept="image/*" multiple>
-    <div id="dropZone">Drag & Drop Images Here</div>
+    <div id="dropZone" role="button" aria-label="Drop images here">
+    Drag & Drop Images Here
+    </div>
 
     <p>Quality: <span id="qualityValue">80%</span></p>
     <input type="range" id="qualitySlider" min="10" max="100" value="80" step="5" 
