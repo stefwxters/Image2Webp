@@ -10,7 +10,7 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 30px;
-    background: #f9ece5; /* Warm, light peach background */
+    background: #f9ece5;
     color: #333;
     line-height: 1.6;
 }
@@ -22,27 +22,27 @@ header {
 
 h1 {
     font-size: 2.5em;
-    color: #d35400; /* Warm pumpkin orange */
+    color: #d35400;
     font-weight: 600;
 }
 
 .upload-area {
-    border: 3px dashed #e67e22; /* Warm orange dashed border */
+    border: 3px dashed #e67e22;
     padding: 50px;
     text-align: center;
-    background: #fff7f0; /* Very light warm tone */
+    background: #fff7f0;
     border-radius: 10px;
     transition: all 0.3s ease;
 }
 
 .upload-area.dragover {
-    border-color: #f1c40f; /* Bright, warm yellow */
+    border-color: #f1c40f;
     background: #fef5e7;
 }
 
 .dropzone {
     font-size: 1.3em;
-    color: #7f8c8d; /* Soft gray for contrast */
+    color: #7f8c8d;
 }
 
 .controls {
@@ -52,13 +52,13 @@ h1 {
 
 label {
     font-size: 1.2em;
-    color: #8e44ad; /* Warm purple for emphasis */
+    color: #8e44ad;
     margin-right: 10px;
 }
 
 #quality {
     width: 200px;
-    accent-color: #e67e22; /* Slider matches the warm theme */
+    accent-color: #e67e22;
 }
 
 #qualityValue {
@@ -73,16 +73,26 @@ label {
     margin: 30px 0;
 }
 
+.preview-item {
+    text-align: center;
+}
+
 img {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     loading: lazy;
 }
 
+.size-savings {
+    margin-top: 10px;
+    font-size: 1em;
+    color: #27ae60; /* Green to highlight savings */
+}
+
 button {
-    background: #e67e22; /* Warm orange button */
+    background: #e67e22;
     color: white;
     padding: 12px 25px;
     border: none;
@@ -93,11 +103,11 @@ button {
 }
 
 button:hover:not(:disabled) {
-    background: #d35400; /* Darker orange on hover */
+    background: #d35400;
 }
 
 button:disabled {
-    background: #bdc3c7; /* Cool gray for disabled state */
+    background: #bdc3c7;
     cursor: not-allowed;
 }
 
@@ -105,7 +115,7 @@ progress {
     width: 100%;
     height: 10px;
     margin-top: 20px;
-    accent-color: #f1c40f; /* Warm yellow progress bar */
+    accent-color: #f1c40f;
 }
 
 @media (max-width: 600px) {
