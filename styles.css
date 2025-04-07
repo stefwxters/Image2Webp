@@ -1,57 +1,120 @@
 /* styles.css */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 30px;
+    background: #f9ece5; /* Warm, light peach background */
+    color: #333;
     line-height: 1.6;
 }
 
-.upload-area {
-    border: 2px dashed #ccc;
-    padding: 40px;
+header {
     text-align: center;
-    transition: border-color 0.3s ease;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #d35400; /* Warm pumpkin orange */
+    font-weight: 600;
+}
+
+.upload-area {
+    border: 3px dashed #e67e22; /* Warm orange dashed border */
+    padding: 50px;
+    text-align: center;
+    background: #fff7f0; /* Very light warm tone */
+    border-radius: 10px;
+    transition: all 0.3s ease;
 }
 
 .upload-area.dragover {
-    border-color: #007bff;
-    background: #f0f8ff;
+    border-color: #f1c40f; /* Bright, warm yellow */
+    background: #fef5e7;
 }
 
 .dropzone {
+    font-size: 1.3em;
+    color: #7f8c8d; /* Soft gray for contrast */
+}
+
+.controls {
+    margin: 20px 0;
+    text-align: center;
+}
+
+label {
     font-size: 1.2em;
-    color: #666;
+    color: #8e44ad; /* Warm purple for emphasis */
+    margin-right: 10px;
+}
+
+#quality {
+    width: 200px;
+    accent-color: #e67e22; /* Slider matches the warm theme */
+}
+
+#qualityValue {
+    font-weight: bold;
+    color: #d35400;
 }
 
 .preview {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin: 20px 0;
+    gap: 25px;
+    margin: 30px 0;
 }
 
 img {
     max-width: 100%;
     height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
     loading: lazy;
 }
 
 button {
-    background: #007bff;
+    background: #e67e22; /* Warm orange button */
     color: white;
-    padding: 10px 20px;
+    padding: 12px 25px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
+    font-size: 1.1em;
     cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+button:hover:not(:disabled) {
+    background: #d35400; /* Darker orange on hover */
 }
 
 button:disabled {
-    background: #ccc;
+    background: #bdc3c7; /* Cool gray for disabled state */
     cursor: not-allowed;
 }
 
+progress {
+    width: 100%;
+    height: 10px;
+    margin-top: 20px;
+    accent-color: #f1c40f; /* Warm yellow progress bar */
+}
+
 @media (max-width: 600px) {
+    h1 {
+        font-size: 2em;
+    }
+    .upload-area {
+        padding: 30px;
+    }
     .preview {
         grid-template-columns: 1fr;
     }
