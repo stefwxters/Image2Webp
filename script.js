@@ -37,10 +37,13 @@ function handleFiles(files) {
     filesToConvert.forEach((file, index) => {
         const reader = new FileReader();
         reader.onload = () => {
+            const div = document.createElement('div');
+            div.className = 'preview-item';
             const img = document.createElement('img');
             img.src = reader.result;
             img.alt = `Original image ${index + 1}`;
-            preview.appendChild(img);
+            div.appendChild(img);
+            preview.appendChild(div);
         };
         reader.readAsDataURL(file);
     });
@@ -53,6 +56,7 @@ convertBtn.addEventListener('click', async () => {
 
     for (let i = 0; i < filesToConvert.length; i++) {
         const file = filesToConvert[i];
+        const originalSize = file.size; // Original size in bytes
         const img = new Image();
         img.src = URL.createObjectURL(file);
         await new Promise((resolve) => (img.onload = resolve));
@@ -63,6 +67,20 @@ convertBtn.addEventListener('click', async () => {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
         const webpData = canvas.toDataURL('image/webp', quality);
+
+        // Calculate WebP size (approximation from base64 string)
+        const webpSize = Math.round((webpData.length * 3) / 4); // Base64 to bytes
+        const savings = originalSize - webpSize;
+        const savingsKB = (savings / 1024).toFixed(2); // Convert to KB
+        const savingsText = savings > 0 ? `Saved ${savingsKB} KB` : `No savings`;
+
+        // Update preview with savings
+        const previewItem = preview.children[i];
+        const savingsSpan = document.createElement('span');
+        savingsSpan.className = 'size-savings';
+        savingsSpan.textContent = savingsText;
+        previewItem.appendChild(savingsSpan);
+
         convertedFiles.push({ name: file.name.replace(/\.[^/.]+$/, '.webp'), data: webpData });
         progress.value = ((i + 1) / filesToConvert.length) * 100;
     }
