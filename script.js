@@ -4,6 +4,7 @@ const dropzone = document.querySelector('.dropzone');
 const convertBtn = document.getElementById('convertBtn');
 const preview = document.querySelector('.preview');
 const qualityInput = document.getElementById('quality');
+const qualityValue = document.getElementById('qualityValue');
 const progress = document.getElementById('progress');
 let filesToConvert = [];
 
@@ -23,6 +24,11 @@ dropzone.addEventListener('drop', (e) => {
 });
 
 imageInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+// Update quality value in real-time
+qualityInput.addEventListener('input', () => {
+    qualityValue.textContent = qualityInput.value;
+});
 
 function handleFiles(files) {
     filesToConvert = Array.from(files);
