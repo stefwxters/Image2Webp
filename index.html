@@ -1,42 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Free online tool to convert any image format to WebP instantly. Fast, private, client-side conversion. No upload needed." />
-  <meta property="og:title" content="Image2WebP - Free Online WebP Converter" />
-  <meta property="og:description" content="Convert JPG, PNG, GIF and more to WebP format. 100% free and secure." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://image2webp.tools" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <title>Image2WebP - Convert Images to WebP Instantly</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="manifest" href="manifest.json" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Convert images to WebP format easily with this fast, SEO-optimized tool.">
+    <title>Image2WebP Converter - Fast & Lightweight</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <h1>Image2WebP Converter</h1>
-    <p>Convert images to WebP format directly in your browser. Fast, private, free.</p>
-  </header>
-
-  <main>
-    <section id="upload-area">
-      <!-- Drag & Drop or File Picker -->
-    </section>
-    <section id="settings">
-      <!-- Quality slider, Lossless toggle -->
-    </section>
-    <section id="preview">
-      <!-- Converted image previews + download buttons -->
-    </section>
-  </main>
-
-  <footer>
-    <p>&copy; 2025 Image2WebP Tools. All rights reserved.</p>
-    <a href="/privacy">Privacy Policy</a>
-  </footer>
-
-  <script src="app.js" defer></script>
+    <header>
+        <h1>Image2WebP Converter</h1>
+    </header>
+    <main>
+        <section class="upload-area" aria-label="Drag and drop or upload images">
+            <input type="file" id="imageInput" accept="image/*" multiple>
+            <div class="dropzone">Drag & Drop Images Here</div>
+        </section>
+        <section class="controls">
+            <label for="quality">Quality (0-100):</label>
+            <input type="range" id="quality" min="0" max="100" value="80">
+        </section>
+        <section class="preview" aria-live="polite"></section>
+        <button id="convertBtn" disabled>Convert to WebP</button>
+        <progress id="progress" max="100" value="0"></progress>
+    </main>
+    <script src="script.js"></script>
 </body>
 </html>
-
