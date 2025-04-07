@@ -1,30 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="/Image2Webp/styles.css" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="google-site-verification" content="MmT-Ymvh1n5R9L-FsHVl0oAEWiHzSpapSaQ1t86_uMg" />
-    <meta name="theme-color" content="#3498db" />
-    <meta name="description" content="Easy online image to WebP converter. Compress and convert images instantly."/>
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>Image2WebP - Convert Images to WebP</title>
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" href="/static/js/main.js" as="script">
-    <link rel="preload" href="/static/css/main.css" as="style">
-    
-    <!-- Performance optimizations -->
-    <style>
-      body {
-        font-display: swap;
-      }
-    </style>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Free online tool to convert any image format to WebP instantly. Fast, private, client-side conversion. No upload needed." />
+  <meta property="og:title" content="Image2WebP - Free Online WebP Converter" />
+  <meta property="og:description" content="Convert JPG, PNG, GIF and more to WebP format. 100% free and secure." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://image2webp.tools" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <title>Image2WebP - Convert Images to WebP Instantly</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+<body>
+  <header>
+    <h1>Image2WebP Converter</h1>
+    <p>Convert images to WebP format directly in your browser. Fast, private, free.</p>
+  </header>
+
+  <main>
+    <section id="upload-area">
+      <!-- Drag & Drop or File Picker -->
+    </section>
+    <section id="settings">
+      <!-- Quality slider, Lossless toggle -->
+    </section>
+    <section id="preview">
+      <!-- Converted image previews + download buttons -->
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Image2WebP Tools. All rights reserved.</p>
+    <a href="/privacy">Privacy Policy</a>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
 </html>
+
