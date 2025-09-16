@@ -3,35 +3,471 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="MmT-Ymvh1n5R9L-FsHVl0oAEWiHzSpapSaQ1t86_uMg" />
-    <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
-    <title>Image2WebP Converter - Fast,Free & Lightweight</title>
-    <meta name="author" content="stefwxters">
-    <meta name="description" content="Convert images to WebP format with this fast, user-friendly tool.">
-    <meta name="keywords" content="image2webp,image to webp,webp converter,img2webp,image converter,image optimizer,image opimization"/>
-    <link rel="stylesheet" href="styles.css">
-    <meta name="theme-color" content="#f9ece5">
-    
+    <title>Image to WebP Converter - Fast, Free & Simple</title>
+    <meta name="description" content="Convert images to WebP format with our fast, free, and mobile-friendly tool. Supports JPEG, PNG, GIF, and more.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .converter-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+            transform: translateY(-2px);
+        }
+
+        .upload-area.dragover {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .upload-subtext {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .quality-control {
+            margin: 30px 0;
+            display: none;
+        }
+
+        .quality-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .quality-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        .quality-value {
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .preview-container {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .preview-item {
+            text-align: center;
+        }
+
+        .preview-item h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .preview-item img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .file-info {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+            text-decoration: none;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .download-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .processing {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            color: white;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .converter-card {
+                padding: 25px;
+            }
+            
+            .upload-area {
+                padding: 40px 15px;
+            }
+            
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Image2WebP Converter</h1>
-        <h2>Convert images to WebP format with this Fast, Simple and Free tool.</h2>
-    </header>
-    <main>
-        <section class="upload-area" aria-label="Drag and drop or upload images">
-            <input type="file" id="imageInput" accept="image/*" multiple>
-            <div class="dropzone">Drag & Drop Images Here<br>or Click to Upload</div>
-        </section>
-        <section class="controls">
-            <label for="quality">Quality: <span id="qualityValue">80</span>%</label>
-            <input type="range" id="quality" min="0" max="100" value="80">
-        </section>
-        <section class="preview" aria-live="polite"></section>
-        <button id="convertBtn" disabled>Convert to WebP</button>
-        <progress id="progress" max="100" value="0"></progress>
-    </main>
-    <script src="script.js"></script>
+    <div class="container">
+        <div class="header">
+            <h1>🖼️ Image to WebP Converter</h1>
+            <p>Convert your images to WebP format - Fast, Free & Simple</p>
+        </div>
+
+        <div class="converter-card">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📤</div>
+                <div class="upload-text">Drop your image here or click to browse</div>
+                <div class="upload-subtext">Supports JPEG, PNG, GIF, BMP, TIFF (Max 10MB)</div>
+            </div>
+            <input type="file" id="fileInput" accept="image/*">
+
+            <div class="quality-control" id="qualityControl">
+                <label class="quality-label" for="qualitySlider">WebP Quality</label>
+                <input type="range" id="qualitySlider" class="quality-slider" min="10" max="100" value="80">
+                <div class="quality-value" id="qualityValue">80%</div>
+            </div>
+
+            <div class="processing" id="processing">
+                <div class="spinner"></div>
+                <div>Converting to WebP...</div>
+            </div>
+
+            <div class="preview-container" id="previewContainer">
+                <div class="preview-grid">
+                    <div class="preview-item">
+                        <h3>Original Image</h3>
+                        <img id="originalImg" alt="Original">
+                        <div class="file-info" id="originalInfo"></div>
+                    </div>
+                    <div class="preview-item">
+                        <h3>WebP Result</h3>
+                        <img id="webpImg" alt="WebP">
+                        <div class="file-info" id="webpInfo"></div>
+                    </div>
+                </div>
+                <a class="download-btn" id="downloadBtn" download="converted.webp">
+                    📥 Download WebP Image
+                </a>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">Lightning Fast</div>
+                <div class="feature-desc">Convert images instantly using your browser's native capabilities</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-title">100% Private</div>
+                <div class="feature-desc">All processing happens locally - your images never leave your device</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">Mobile Friendly</div>
+                <div class="feature-desc">Works perfectly on all devices - desktop, tablet, and mobile</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎛️</div>
+                <div class="feature-title">Quality Control</div>
+                <div class="feature-desc">Adjust compression quality to balance file size and image quality</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const qualityControl = document.getElementById('qualityControl');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
+        const processing = document.getElementById('processing');
+        const previewContainer = document.getElementById('previewContainer');
+        const originalImg = document.getElementById('originalImg');
+        const webpImg = document.getElementById('webpImg');
+        const originalInfo = document.getElementById('originalInfo');
+        const webpInfo = document.getElementById('webpInfo');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let currentFile = null;
+
+        // File input handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFile);
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelection(files[0]);
+            }
+        });
+
+        function handleFile(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileSelection(file);
+            }
+        }
+
+        function handleFileSelection(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select a valid image file.');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB.');
+                return;
+            }
+
+            currentFile = file;
+            qualityControl.style.display = 'block';
+            previewContainer.style.display = 'none';
+            
+            // Show original image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalImg.src = e.target.result;
+                originalInfo.innerHTML = `
+                    <strong>Size:</strong> ${formatFileSize(file.size)}<br>
+                    <strong>Type:</strong> ${file.type}<br>
+                    <strong>Name:</strong> ${file.name}
+                `;
+            };
+            reader.readAsDataURL(file);
+
+            convertToWebP();
+        }
+
+        qualitySlider.addEventListener('input', (e) => {
+            qualityValue.textContent = e.target.value + '%';
+            if (currentFile) {
+                convertToWebP();
+            }
+        });
+
+        function convertToWebP() {
+            if (!currentFile) return;
+
+            processing.style.display = 'block';
+            previewContainer.style.display = 'none';
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            img.onload = () => {
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                ctx.drawImage(img, 0, 0);
+
+                const quality = qualitySlider.value / 100;
+                
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const webpUrl = URL.createObjectURL(blob);
+                        webpImg.src = webpUrl;
+                        
+                        const compressionRatio = ((currentFile.size - blob.size) / currentFile.size * 100).toFixed(1);
+                        
+                        webpInfo.innerHTML = `
+                            <strong>Size:</strong> ${formatFileSize(blob.size)}<br>
+                            <strong>Type:</strong> image/webp<br>
+                            <strong>Compression:</strong> ${compressionRatio}% smaller
+                        `;
+
+                        downloadBtn.href = webpUrl;
+                        downloadBtn.download = currentFile.name.replace(/\.[^/.]+$/, "") + '.webp';
+
+                        processing.style.display = 'none';
+                        previewContainer.style.display = 'block';
+                    }
+                }, 'image/webp', quality);
+            };
+
+            img.src = URL.createObjectURL(currentFile);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Update quality value on load
+        qualityValue.textContent = qualitySlider.value + '%';
+    </script>
 </body>
 </html>
