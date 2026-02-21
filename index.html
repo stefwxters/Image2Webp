@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="MmT-Ymvh1n5R9L-FsHVl0oAEWiHzSpapSaQ1t86_uMg" />
-    <link rel="icon" href="./images/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
     <title>Image to WebP Converter - Fast, Free & Simple</title>
-    <meta name="description" content="Convert images to WebP format with our fast, free, and mobile-friendly tool. Supports JPEG, PNG, GIF, and more.">
+    <meta name="description"
+        content="Convert images to WebP format with our fast, free, and mobile-friendly tool. Supports JPEG, PNG, GIF, and more.">
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -22,7 +23,7 @@
   "offers": {
     "@type": "Offer",
     "price": "0",
-    "priceCurrency": "EUR"
+    "priceCurrency": "USD"
   },
   "aggregateRating": {
     "@type": "AggregateRating",
@@ -32,6 +33,7 @@
 }
 </script>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -161,7 +163,7 @@
             currentFile = file;
             qualityControl.style.display = 'block';
             previewContainer.style.display = 'none';
-            
+
             // Show original image
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -200,14 +202,14 @@
                 ctx.drawImage(img, 0, 0);
 
                 const quality = qualitySlider.value / 100;
-                
+
                 canvas.toBlob((blob) => {
                     if (blob) {
                         const webpUrl = URL.createObjectURL(blob);
                         webpImg.src = webpUrl;
-                        
+
                         const compressionRatio = ((currentFile.size - blob.size) / currentFile.size * 100).toFixed(1);
-                        
+
                         webpInfo.innerHTML = `
                             <strong>Size:</strong> ${formatFileSize(blob.size)}<br>
                             <strong>Type:</strong> image/webp<br>
@@ -238,4 +240,5 @@
         qualityValue.textContent = qualitySlider.value + '%';
     </script>
 </body>
+
 </html>
