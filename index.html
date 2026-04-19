@@ -37,7 +37,7 @@
         </div>
 
         <div class="converter-card">
-            <div class="upload-area" id="uploadArea" tabindex="0" role="button">
+            <div class="upload-area" id="uploadArea" tabindex="0" role="button" aria-label="Upload image file">
                 <div class="upload-icon">📤</div>
                 <div class="upload-text">Drop your image here or click to browse</div>
                 <div class="upload-subtext">Supports JPEG, PNG, GIF, BMP, TIFF (Max 10MB)</div>
@@ -113,10 +113,18 @@
         const downloadBtn = document.getElementById('downloadBtn');
 
         let currentFile = null;
+        let currentFileUrl = null;
+        let webpObjectUrl = null;
 
         // File input handling
         uploadArea.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', handleFile);
+        uploadArea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInput.click();
+            }
+        });
 
         // Drag and drop
         uploadArea.addEventListener('dragover', (e) => {
@@ -155,6 +163,15 @@
                 return;
             }
 
+            if (currentFileUrl) {
+                URL.revokeObjectURL(currentFileUrl);
+                currentFileUrl = null;
+            }
+            if (webpObjectUrl) {
+                URL.revokeObjectURL(webpObjectUrl);
+                webpObjectUrl = null;
+            }
+
             currentFile = file;
             qualityControl.style.display = 'block';
             previewContainer.style.display = 'none';
@@ -170,6 +187,7 @@
                 `;
             };
             reader.readAsDataURL(file);
+            fileInput.value = '';
 
             convertToWebP();
         }
@@ -195,23 +213,33 @@
                 canvas.width = img.naturalWidth;
                 canvas.height = img.naturalHeight;
                 ctx.drawImage(img, 0, 0);
+                if (currentFileUrl) {
+                    URL.revokeObjectURL(currentFileUrl);
+                    currentFileUrl = null;
+                }
 
                 const quality = qualitySlider.value / 100;
 
                 canvas.toBlob((blob) => {
                     if (blob) {
-                        const webpUrl = URL.createObjectURL(blob);
-                        webpImg.src = webpUrl;
+                        if (webpObjectUrl) {
+                            URL.revokeObjectURL(webpObjectUrl);
+                        }
+                        webpObjectUrl = URL.createObjectURL(blob);
+                        webpImg.src = webpObjectUrl;
 
-                        const compressionRatio = ((currentFile.size - blob.size) / currentFile.size * 100).toFixed(1);
+                        const sizeDeltaPercent = ((Math.abs(currentFile.size - blob.size) / currentFile.size) * 100).toFixed(1);
+                        const compressionLabel = blob.size <= currentFile.size
+                            ? `${sizeDeltaPercent}% smaller`
+                            : `${sizeDeltaPercent}% larger`;
 
                         webpInfo.innerHTML = `
                             <strong>Size:</strong> ${formatFileSize(blob.size)}<br>
                             <strong>Type:</strong> image/webp<br>
-                            <strong>Compression:</strong> ${compressionRatio}% smaller
+                            <strong>Compression:</strong> ${compressionLabel}
                         `;
 
-                        downloadBtn.href = webpUrl;
+                        downloadBtn.href = webpObjectUrl;
                         downloadBtn.download = currentFile.name.replace(/\.[^/.]+$/, "") + '.webp';
 
                         processing.style.display = 'none';
@@ -220,7 +248,11 @@
                 }, 'image/webp', quality);
             };
 
-            img.src = URL.createObjectURL(currentFile);
+            if (currentFileUrl) {
+                URL.revokeObjectURL(currentFileUrl);
+            }
+            currentFileUrl = URL.createObjectURL(currentFile);
+            img.src = currentFileUrl;
         }
 
         function formatFileSize(bytes) {
