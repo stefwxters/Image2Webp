@@ -15,7 +15,7 @@ A powerful, user-friendly web application for converting and compressing images 
   - Output: WebP
 - Compression quality control (slider)
 - Savings in KB
-- Batch conversion support
+- Batch conversion support (soon)  
 - Lightweight and fast
 
 ## New Advanced Features
@@ -52,13 +52,6 @@ A powerful, user-friendly web application for converting and compressing images 
 
 ## License
 MIT License
-
-## Performance Checklist
-- [x] Lighthouse Score: 100
-- [x] Mobile-friendly
-- [x] Fast image conversion
-- [x] Low resource usage
-- [x] Multiple format support
 
 ## Roadmap
 - Soon
