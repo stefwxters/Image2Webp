@@ -8,7 +8,8 @@
     <link rel="icon" href="/Image2Webp/images/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
     <title>Image to WebP Converter - Fast, Free & Simple</title>
-    <meta name="description" content="Convert images to WebP format with our fast, free, and mobile-friendly tool. Supports JPEG, PNG, GIF, and more.">
+    <meta name="description"
+        content="Convert images to WebP format with our fast, free, and mobile-friendly tool. Supports JPEG, PNG, GIF, and more.">
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -27,6 +28,7 @@
 }
 </script>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -202,7 +204,7 @@
                 requestAnimationFrame(() => {
                     const width = img.naturalWidth;
                     const height = img.naturalHeight;
-                    
+
                     canvas.width = width;
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0);
@@ -212,7 +214,7 @@
                     canvas.toBlob((blob) => {
                         if (blob) {
                             if (webpObjectUrl) URL.revokeObjectURL(webpObjectUrl);
-                            
+
                             webpObjectUrl = URL.createObjectURL(blob);
                             webpImg.src = webpObjectUrl;
 
