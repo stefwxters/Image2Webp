@@ -42,20 +42,20 @@
                 <div class="upload-text">Drop image or click to browse</div>
                 <div class="upload-subtext">Supports JPEG, PNG, GIF, BMP, TIFF (Max 10MB)</div>
             </div>
-            <input type="file" id="fileInput" accept="image/*">
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
 
-            <div class="quality-control" id="qualityControl">
+            <div class="quality-control" id="qualityControl" style="display: none;">
                 <label class="quality-label" for="qualitySlider">WebP Quality</label>
                 <input type="range" id="qualitySlider" class="quality-slider" min="10" max="100" value="80">
                 <div class="quality-value" id="qualityValue">80%</div>
             </div>
 
-            <div class="processing" id="processing">
+            <div class="processing" id="processing" style="display: none;">
                 <div class="spinner"></div>
                 <div>Converting to WebP...</div>
             </div>
 
-            <div class="preview-container" id="previewContainer">
+            <div class="preview-container" id="previewContainer" style="display: none;">
                 <div class="preview-grid">
                     <div class="preview-item">
                         <h3>Original Image</h3>
@@ -116,7 +116,6 @@
         let currentFileUrl = null;
         let webpObjectUrl = null;
 
-        // File input handling
         uploadArea.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', handleFile);
         uploadArea.addEventListener('keydown', (e) => {
@@ -126,7 +125,6 @@
             }
         });
 
-        // Drag and drop
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.classList.add('dragover');
@@ -163,20 +161,13 @@
                 return;
             }
 
-            if (currentFileUrl) {
-                URL.revokeObjectURL(currentFileUrl);
-                currentFileUrl = null;
-            }
-            if (webpObjectUrl) {
-                URL.revokeObjectURL(webpObjectUrl);
-                webpObjectUrl = null;
-            }
+            if (currentFileUrl) URL.revokeObjectURL(currentFileUrl);
+            if (webpObjectUrl) URL.revokeObjectURL(webpObjectUrl);
 
             currentFile = file;
             qualityControl.style.display = 'block';
             previewContainer.style.display = 'none';
 
-            // Show original image
             const reader = new FileReader();
             reader.onload = (e) => {
                 originalImg.src = e.target.result;
@@ -194,14 +185,18 @@
 
         qualitySlider.addEventListener('input', (e) => {
             qualityValue.textContent = e.target.value + '%';
-            if (currentFile) {
-                convertToWebP();
-            }
+        });
+
+        // Gebruik 'change' in plaats van 'input' voor de slider om CPU te sparen tijdens het schuiven, 
+        // of hou 'input' als je directe preview wilt.
+        qualitySlider.addEventListener('change', () => {
+            if (currentFile) convertToWebP();
         });
 
         function convertToWebP() {
             if (!currentFile) return;
 
+            // UI updates eerst
             processing.style.display = 'block';
             previewContainer.style.display = 'none';
 
@@ -210,47 +205,46 @@
             const img = new Image();
 
             img.onload = () => {
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                ctx.drawImage(img, 0, 0);
-                if (currentFileUrl) {
-                    URL.revokeObjectURL(currentFileUrl);
-                    currentFileUrl = null;
-                }
+                // Optimalisatie: Gebruik requestAnimationFrame om 'Forced Synchronous Layout' te voorkomen
+                requestAnimationFrame(() => {
+                    const width = img.naturalWidth;
+                    const height = img.naturalHeight;
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0);
 
-                const quality = qualitySlider.value / 100;
+                    const quality = parseInt(qualitySlider.value) / 100;
 
-                canvas.toBlob((blob) => {
-                    if (blob) {
-                        if (webpObjectUrl) {
-                            URL.revokeObjectURL(webpObjectUrl);
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            if (webpObjectUrl) URL.revokeObjectURL(webpObjectUrl);
+                            
+                            webpObjectUrl = URL.createObjectURL(blob);
+                            webpImg.src = webpObjectUrl;
+
+                            const sizeDeltaPercent = ((Math.abs(currentFile.size - blob.size) / currentFile.size) * 100).toFixed(1);
+                            const compressionLabel = blob.size <= currentFile.size
+                                ? `${sizeDeltaPercent}% smaller`
+                                : `${sizeDeltaPercent}% larger`;
+
+                            webpInfo.innerHTML = `
+                                <strong>Size:</strong> ${formatFileSize(blob.size)}<br>
+                                <strong>Type:</strong> image/webp<br>
+                                <strong>Compression:</strong> ${compressionLabel}
+                            `;
+
+                            downloadBtn.href = webpObjectUrl;
+                            downloadBtn.download = currentFile.name.replace(/\.[^/.]+$/, "") + '.webp';
+
+                            processing.style.display = 'none';
+                            previewContainer.style.display = 'block';
                         }
-                        webpObjectUrl = URL.createObjectURL(blob);
-                        webpImg.src = webpObjectUrl;
-
-                        const sizeDeltaPercent = ((Math.abs(currentFile.size - blob.size) / currentFile.size) * 100).toFixed(1);
-                        const compressionLabel = blob.size <= currentFile.size
-                            ? `${sizeDeltaPercent}% smaller`
-                            : `${sizeDeltaPercent}% larger`;
-
-                        webpInfo.innerHTML = `
-                            <strong>Size:</strong> ${formatFileSize(blob.size)}<br>
-                            <strong>Type:</strong> image/webp<br>
-                            <strong>Compression:</strong> ${compressionLabel}
-                        `;
-
-                        downloadBtn.href = webpObjectUrl;
-                        downloadBtn.download = currentFile.name.replace(/\.[^/.]+$/, "") + '.webp';
-
-                        processing.style.display = 'none';
-                        previewContainer.style.display = 'block';
-                    }
-                }, 'image/webp', quality);
+                    }, 'image/webp', quality);
+                });
             };
 
-            if (currentFileUrl) {
-                URL.revokeObjectURL(currentFileUrl);
-            }
+            if (currentFileUrl) URL.revokeObjectURL(currentFileUrl);
             currentFileUrl = URL.createObjectURL(currentFile);
             img.src = currentFileUrl;
         }
@@ -263,7 +257,6 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Update quality value on load
         qualityValue.textContent = qualitySlider.value + '%';
     </script>
 </body>
